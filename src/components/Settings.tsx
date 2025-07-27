@@ -27,6 +27,7 @@ import {
   Monitor
 } from 'lucide-react';
 import { currentUser } from '../data/mockData';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SettingsSection {
   id: string;
@@ -45,10 +46,10 @@ interface SettingsItem {
 }
 
 export default function Settings() {
+  const { theme, setTheme, effectiveTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [editingProfile, setEditingProfile] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [notifications, setNotifications] = useState({
     orderUpdates: true,
     circleInvites: true,
@@ -290,14 +291,14 @@ export default function Settings() {
           </div>
 
           <div className="grid gap-4">
-            {themeOptions.map((theme) => {
-              const Icon = theme.icon;
-              const isSelected = selectedTheme === theme.id;
+            {themeOptions.map((themeOption) => {
+              const Icon = themeOption.icon;
+              const isSelected = theme === themeOption.id;
               
               return (
                 <button
-                  key={theme.id}
-                  onClick={() => setSelectedTheme(theme.id)}
+                  key={themeOption.id}
+                  onClick={() => setTheme(themeOption.id)}
                   className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                     isSelected
                       ? 'border-purple-500 bg-purple-50 shadow-md'
@@ -316,12 +317,12 @@ export default function Settings() {
                       <h5 className={`font-semibold ${
                         isSelected ? 'text-purple-900' : 'text-gray-900'
                       }`}>
-                        {theme.label}
+                        {themeOption.label}
                       </h5>
                       <p className={`text-sm ${
                         isSelected ? 'text-purple-700' : 'text-gray-600'
                       }`}>
-                        {theme.description}
+                        {themeOption.description}
                       </p>
                     </div>
                     {isSelected && (
@@ -338,18 +339,28 @@ export default function Settings() {
           {/* Theme Preview */}
           <div className="mt-8 p-4 bg-gray-50 rounded-xl">
             <h5 className="font-medium text-gray-900 mb-3">Preview</h5>
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className={`rounded-lg p-4 border transition-colors ${
+              effectiveTheme === 'dark' 
+                ? 'bg-slate-800 border-slate-600 text-white' 
+                : 'bg-white border-gray-200 text-gray-900'
+            }`}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                   <Store className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <h6 className="font-medium text-gray-900">Sample Order</h6>
-                  <p className="text-sm text-gray-600">Fresh ingredients delivery</p>
+                  <h6 className={`font-medium ${
+                    effectiveTheme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}>Sample Order</h6>
+                  <p className={`text-sm ${
+                    effectiveTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  }`}>Fresh ingredients delivery</p>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Status</span>
+                <span className={`text-sm ${
+                  effectiveTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                }`}>Status</span>
                 <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                   Delivered
                 </span>
@@ -361,7 +372,7 @@ export default function Settings() {
             <button
               onClick={() => {
                 setActiveSection(null);
-                console.log('Theme saved:', selectedTheme);
+                console.log('Theme applied:', theme);
               }}
               className="flex-1 bg-purple-600 text-white py-3 px-4 rounded-xl hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-2"
             >
@@ -558,24 +569,24 @@ export default function Settings() {
         {settingsSections.map((section) => {
           const Icon = section.icon;
           return (
-            <div key={section.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100">
+            <div key={section.id} className="theme-bg-primary rounded-2xl shadow-sm theme-border border overflow-hidden">
+              <div className="px-6 py-4 theme-border-light border-b">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <Icon className="w-5 h-5 text-gray-600" />
+                  <div className="p-2 theme-bg-tertiary rounded-lg">
+                    <Icon className="w-5 h-5 theme-text-secondary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
+                  <h3 className="text-lg font-semibold theme-text-primary">{section.title}</h3>
                 </div>
               </div>
               
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y theme-border-light">
                 {section.items.map((item) => (
-                  <div key={item.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                  <div key={item.id} className="px-6 py-4 hover:theme-bg-tertiary transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{item.label}</h4>
+                        <h4 className="font-medium theme-text-primary">{item.label}</h4>
                         {item.description && (
-                          <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                          <p className="text-sm theme-text-secondary mt-1">{item.description}</p>
                         )}
                       </div>
                       
@@ -606,14 +617,14 @@ export default function Settings() {
                                 console.log('Navigate to:', item.id);
                               }
                             }}
-                            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-1 hover:theme-bg-tertiary rounded-lg transition-colors"
                           >
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                            <ChevronRight className="w-5 h-5 theme-text-tertiary" />
                           </button>
                         )}
                         
                         {item.type === 'info' && item.value && (
-                          <span className="text-sm text-gray-600">{item.value}</span>
+                          <span className="text-sm theme-text-secondary">{item.value}</span>
                         )}
                       </div>
                     </div>
@@ -626,25 +637,25 @@ export default function Settings() {
       </div>
 
       {/* App Info & Logout */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">App Information</h3>
+      <div className="theme-bg-primary rounded-2xl shadow-sm theme-border border overflow-hidden">
+        <div className="px-6 py-4 theme-border-light border-b">
+          <h3 className="text-lg font-semibold theme-text-primary">App Information</h3>
         </div>
         
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y theme-border-light">
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-gray-900">Version</h4>
-              <p className="text-sm text-gray-600">FoodCircle v2.1.0</p>
+              <h4 className="font-medium theme-text-primary">Version</h4>
+              <p className="text-sm theme-text-secondary">FoodCircle v2.1.0</p>
             </div>
           </div>
           
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-gray-900">Terms & Privacy</h4>
-              <p className="text-sm text-gray-600">Review our terms and privacy policy</p>
+              <h4 className="font-medium theme-text-primary">Terms & Privacy</h4>
+              <p className="text-sm theme-text-secondary">Review our terms and privacy policy</p>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <ChevronRight className="w-5 h-5 theme-text-tertiary" />
           </div>
           
           <div className="px-6 py-4">
@@ -658,7 +669,7 @@ export default function Settings() {
 
       {/* Footer */}
       <div className="text-center py-8">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm theme-text-tertiary">
           Made with ❤️ for street food vendors
         </p>
       </div>
