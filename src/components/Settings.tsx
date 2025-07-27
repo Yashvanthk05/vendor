@@ -20,7 +20,11 @@ import {
   EyeOff,
   Camera,
   Save,
-  X
+  X,
+  Palette,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react';
 import { currentUser } from '../data/mockData';
 
@@ -44,6 +48,7 @@ export default function Settings() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [editingProfile, setEditingProfile] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [notifications, setNotifications] = useState({
     orderUpdates: true,
     circleInvites: true,
@@ -58,6 +63,27 @@ export default function Settings() {
     businessName: currentUser.businessName,
     address: currentUser.location.address
   });
+
+  const themeOptions = [
+    {
+      id: 'light' as const,
+      label: 'Light',
+      description: 'Clean and bright interface',
+      icon: Sun
+    },
+    {
+      id: 'dark' as const,
+      label: 'Dark',
+      description: 'Easy on the eyes in low light',
+      icon: Moon
+    },
+    {
+      id: 'system' as const,
+      label: 'System',
+      description: 'Matches your device settings',
+      icon: Monitor
+    }
+  ];
 
   const settingsSections: SettingsSection[] = [
     {
@@ -81,6 +107,19 @@ export default function Settings() {
           id: 'password',
           label: 'Password & Security',
           description: 'Change password and security settings',
+          type: 'navigation'
+        }
+      ]
+    },
+    {
+      id: 'appearance',
+      title: 'Appearance',
+      icon: Palette,
+      items: [
+        {
+          id: 'theme',
+          label: 'Theme',
+          description: 'Choose your preferred app theme',
           type: 'navigation'
         }
       ]
@@ -229,6 +268,118 @@ export default function Settings() {
     console.log('Saving profile:', profileData);
   };
 
+  const renderThemeSelector = () => (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-white">Theme Settings</h3>
+          <button
+            onClick={() => setActiveSection(null)}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
+      </div>
+
+      <div className="p-6">
+        <div className="space-y-4">
+          <div className="mb-6">
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Choose Theme</h4>
+            <p className="text-gray-600">Select your preferred app appearance</p>
+          </div>
+
+          <div className="grid gap-4">
+            {themeOptions.map((theme) => {
+              const Icon = theme.icon;
+              const isSelected = selectedTheme === theme.id;
+              
+              return (
+                <button
+                  key={theme.id}
+                  onClick={() => setSelectedTheme(theme.id)}
+                  className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
+                    isSelected
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-lg ${
+                      isSelected ? 'bg-purple-100' : 'bg-gray-100'
+                    }`}>
+                      <Icon className={`w-6 h-6 ${
+                        isSelected ? 'text-purple-600' : 'text-gray-600'
+                      }`} />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className={`font-semibold ${
+                        isSelected ? 'text-purple-900' : 'text-gray-900'
+                      }`}>
+                        {theme.label}
+                      </h5>
+                      <p className={`text-sm ${
+                        isSelected ? 'text-purple-700' : 'text-gray-600'
+                      }`}>
+                        {theme.description}
+                      </p>
+                    </div>
+                    {isSelected && (
+                      <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Theme Preview */}
+          <div className="mt-8 p-4 bg-gray-50 rounded-xl">
+            <h5 className="font-medium text-gray-900 mb-3">Preview</h5>
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <Store className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h6 className="font-medium text-gray-900">Sample Order</h6>
+                  <p className="text-sm text-gray-600">Fresh ingredients delivery</p>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Status</span>
+                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                  Delivered
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={() => {
+                setActiveSection(null);
+                console.log('Theme saved:', selectedTheme);
+              }}
+              className="flex-1 bg-purple-600 text-white py-3 px-4 rounded-xl hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              Apply Theme
+            </button>
+            <button
+              onClick={() => setActiveSection(null)}
+              className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderProfileEdit = () => (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
@@ -346,6 +497,23 @@ export default function Settings() {
     );
   }
 
+  if (activeSection === 'theme') {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => setActiveSection(null)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+          </button>
+          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        </div>
+        {renderThemeSelector()}
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -428,7 +596,20 @@ export default function Settings() {
                         )}
                         
                         {item.type === 'navigation' && (
-                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                          <button
+                            onClick={() => {
+                              if (item.id === 'profile') {
+                                setEditingProfile(true);
+                              } else if (item.id === 'theme') {
+                                setActiveSection('theme');
+                              } else {
+                                console.log('Navigate to:', item.id);
+                              }
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                          >
+                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                          </button>
                         )}
                         
                         {item.type === 'info' && item.value && (
