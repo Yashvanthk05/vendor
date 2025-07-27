@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Brain, Star, MapPin, TrendingUp, Clock } from 'lucide-react';
 import { mockSuppliers, currentUser } from '../data/mockData';
 import { AIRecommendation } from '../types';
+import SupplierModal from './SupplierModal';
+import CircleDropdown from './CircleDropdown';
 
 export default function AIRecommendations() {
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
+  const [circleDropdown, setCircleDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     // Simulate AI recommendation generation
@@ -27,6 +31,16 @@ export default function AIRecommendations() {
       setLoading(false);
     }, 1500);
   }, []);
+
+  const handleViewSupplier = (supplierId: string) => {
+    setSelectedSupplier(supplierId);
+  };
+
+  const handleAddToCircle = (supplierId: string, circleId: string) => {
+    console.log(`Adding supplier ${supplierId} to circle ${circleId}`);
+    // Here you would typically make an API call
+    setCircleDropdown(null);
+  };
 
   if (loading) {
     return (
@@ -110,11 +124,23 @@ export default function AIRecommendations() {
 
               <div className="flex gap-2">
                 <button className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                  onClick={() => handleViewSupplier(rec.supplierId)}
                   View Supplier
                 </button>
-                <button className="px-4 py-2 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
+                <div className="relative">
+                  <button 
+                    onClick={() => setCircleDropdown(circleDropdown === rec.supplierId ? null : rec.supplierId)}
+                    className="px-4 py-2 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium whitespace-nowrap"
+                  >
                   Add to Circle
-                </button>
+                  </button>
+                  <CircleDropdown
+                    isOpen={circleDropdown === rec.supplierId}
+                    onClose={() => setCircleDropdown(null)}
+                    onAddToCircle={(circleId) => handleAddToCircle(rec.supplierId, circleId)}
+                    supplierId={rec.supplierId}
+                  />
+                </div>
               </div>
             </div>
           );
@@ -126,6 +152,12 @@ export default function AIRecommendations() {
           <strong>AI Insight:</strong> Ordering with 3+ vendors in your area can save an average of 23% on bulk purchases.
         </p>
       </div>
+
+      <SupplierModal
+        isOpen={selectedSupplier !== null}
+        onClose={() => setSelectedSupplier(null)}
+        supplierId={selectedSupplier || ''}
+      />
     </div>
   );
 }
