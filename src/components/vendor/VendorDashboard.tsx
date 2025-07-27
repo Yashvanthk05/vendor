@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { TrendingUp, Users, ShoppingCart, Star, Plus, Bell } from 'lucide-react';
 import { mockTrustCircles, mockOrders, currentUser } from '../../data/mockData';
 import AIRecommendations from '../AIRecommendations';
+import NotificationDropdown from '../NotificationDropdown';
+import CreateCircleModal from '../CreateCircleModal';
 
 export default function VendorDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showCreateCircle, setShowCreateCircle] = useState(false);
 
   const userTrustCircles = mockTrustCircles.filter(tc => 
     tc.members.includes(currentUser.id)
@@ -45,6 +48,18 @@ export default function VendorDashboard() {
     }
   ];
 
+  const handleCreateCircle = (circleData: any) => {
+    console.log('Creating new circle:', circleData);
+    // Here you would typically make an API call to create the circle
+    setShowCreateCircle(false);
+  };
+
+  const handleViewAllNotifications = () => {
+    setShowNotifications(false);
+    console.log('Navigate to notifications page');
+    // Here you would navigate to a dedicated notifications page
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -54,16 +69,27 @@ export default function VendorDashboard() {
           <p className="text-gray-600">{currentUser.businessName}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 sm:p-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors touch-manipulation"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+            </button>
+            <NotificationDropdown
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+              onViewAll={handleViewAllNotifications}
+            />
+          </div>
+          <button 
+            onClick={() => setShowCreateCircle(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-green-700 transition-colors touch-manipulation"
           >
-            <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-          </button>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Circle</span>
+            <span className="sm:hidden">Circle</span>
           </button>
         </div>
       </div>
@@ -139,6 +165,12 @@ export default function VendorDashboard() {
           </div>
         </div>
       </div>
+
+      <CreateCircleModal
+        isOpen={showCreateCircle}
+        onClose={() => setShowCreateCircle(false)}
+        onSubmit={handleCreateCircle}
+      />
     </div>
   );
 }
