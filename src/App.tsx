@@ -5,6 +5,7 @@ import SupplierDashboard from './components/supplier/SupplierDashboard';
 import TrustCircles from './components/TrustCircles';
 import OrderTracking from './components/OrderTracking';
 import OrderChat from './components/OrderChat';
+import Analytics from './components/Analytics';
 import { currentUser } from './data/mockData';
 
 function App() {
@@ -22,12 +23,7 @@ function App() {
       case 'chat':
         return <OrderChat />;
       case 'analytics':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Analytics Coming Soon</h2>
-            <p className="text-gray-600">Advanced analytics and reporting features will be available here.</p>
-          </div>
-        );
+        return <Analytics />;
       case 'products':
         return (
           <div className="text-center py-12">
