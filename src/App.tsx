@@ -5,6 +5,7 @@ import SupplierDashboard from './components/supplier/SupplierDashboard';
 import TrustCircles from './components/TrustCircles';
 import OrderTracking from './components/OrderTracking';
 import OrderChat from './components/OrderChat';
+import Settings from './components/Settings';
 import { currentUser } from './data/mockData';
 
 function App() {
@@ -36,12 +37,7 @@ function App() {
           </div>
         );
       case 'settings':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Settings</h2>
-            <p className="text-gray-600">Account settings and preferences will be available here.</p>
-          </div>
-        );
+        return <Settings />;
       default:
         return <VendorDashboard />;
     }
